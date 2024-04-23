@@ -1,0 +1,41 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: temirkhan322
+      POSTGRES_DB: softwarephoenix
+    ports:
+      - "5432:5432"
+  app:
+    image: 'docker-spring-boot-postgres:latest'
+    build:
+      context: .
+    container_name: app
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/softwarephoenix?currentSchema=boot
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=temirkhan322
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    volumes:
+      - ./src/main/resources/db/migration:/app/src/main/resources/db/migration
+  flyway:
+    container_name: my-flyway
+    environment:
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=temirkhan322
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/softwarephoenix?currentSchema=boot
+      - FLYWAY_SCHEMAS=flyway
+      - FLYWAY_GROUP=true
+      # Add other Flyway configuration as needed
+    image: flyway/flyway:latest
+    command: -locations=filesystem:/flyway/sql -connectRetries=60 migrate
+    volumes:
+      - ./sql_versions:/flyway/sql
+    depends_on:
+      - postgres
