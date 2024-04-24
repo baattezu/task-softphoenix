@@ -1,7 +1,6 @@
 FROM openjdk:17-oracle
 WORKDIR /app
 COPY target/test-zadanie-0.0.1-SNAPSHOT.jar /app
-RUN mvnw install
 RUN mkdir -p /flyway/sql
 COPY src/main/resources/db/migration /flyway/sql
 ENV FLYWAY_USER=postgres
